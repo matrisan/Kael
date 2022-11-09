@@ -61,7 +61,7 @@ public final class InvokerService {
             VirtualFile virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
             assert virtualFile != null;
             String filePath = virtualFile.getPath() + File.separator + k + File.separator + "package-info.java";
-            doWriteFile(filePath, v, domainData(virtualFile, k));
+            doWriteFile(filePath, v, domainData(e, virtualFile, k));
         });
     }
 
@@ -77,36 +77,54 @@ public final class InvokerService {
         }
     }
 
-    private static @NotNull Map<String, String> readmeData(@NotNull AnActionEvent e) {
+    private @NotNull Map<String, String> readmeData(@NotNull AnActionEvent e) {
         Map<String, String> data = Maps.newHashMap();
         data.put("projectName", Objects.isNull(e.getProject()) ? "" : getProjectName(e.getProject().getBasePath()));
+        data.put("version", Objects.isNull(e.getProject()) ? "" : getVersion(e.getProject().getBasePath()));
+        data.put("systemUsername", System.getProperty("user.name"));
         return data;
     }
 
-    private static @NotNull Map<String, String> domainData(VirtualFile virtualFile, String dir) {
+    private @NotNull Map<String, String> domainData(AnActionEvent e, VirtualFile virtualFile, String dir) {
         Map<String, String> map = Maps.newHashMap();
         String replace = StringUtils.replace(dir, "/", ".");
         map.put("reference", getPackageReference(virtualFile) + "." + replace);
+        map.put("version", Objects.isNull(e.getProject()) ? "" : getVersion(e.getProject().getBasePath()));
+        map.put("systemUsername", System.getProperty("user.name"));
         return map;
     }
 
-    public static String getPackageReference(@NotNull VirtualFile virtualFile) {
+    public String getPackageReference(@NotNull VirtualFile virtualFile) {
         String data = StringUtils.substringAfter(virtualFile.getPath(), "src/main/java/");
         return StringUtils.replace(data, "/", ".");
     }
 
-    private static String getProjectName(String path) {
-        String pomPath = path + File.separator + "pom.xml";
-        if (FileUtil.exist(pomPath)) {
-            try (FileInputStream fis = new FileInputStream(pomPath)) {
-                MavenXpp3Reader reader = new MavenXpp3Reader();
-                Model model = reader.read(fis);
-                return model.getName();
-            } catch (Exception exception) {
-                exception.printStackTrace();
-                return "";
+    private Model model;
+
+
+    private String getProjectName(String path) {
+        initModel(path);
+        return model.getName();
+    }
+
+
+    private String getVersion(String path) {
+        initModel(path);
+        return model.getVersion();
+    }
+
+
+    private void initModel(String path) {
+        if (Objects.isNull(model)) {
+            String pomPath = path + File.separator + "pom.xml";
+            if (FileUtil.exist(pomPath)) {
+                try (FileInputStream fis = new FileInputStream(pomPath)) {
+                    MavenXpp3Reader reader = new MavenXpp3Reader();
+                    model = reader.read(fis);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
             }
         }
-        return "";
     }
 }
