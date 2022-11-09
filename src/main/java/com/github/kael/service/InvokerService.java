@@ -12,14 +12,18 @@ import com.intellij.openapi.vfs.VirtualFile;
 import freemarker.template.Template;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Objects;
 
-import static com.github.kael.common.StringCommon.MAP;
+import static com.github.kael.common.StringCommon.STRING_MAP;
 
 /**
  * create in 2022/11/8 21:16
@@ -39,21 +43,21 @@ public final class InvokerService {
 
 
     public void createFiles(AnActionEvent e) {
-        tryCreateReadme();
+        tryCreateReadme(e);
         tryCreateDomain(e);
     }
 
 
-    public void tryCreateReadme() {
+    public void tryCreateReadme(AnActionEvent e) {
         String readme = project.getBasePath() + File.separator + "README.adoc";
         if (!FileUtil.exist(readme)) {
-            doWriteFile(readme, "readme.ftl", readmeData());
+            doWriteFile(readme, "readme.ftl", readmeData(e));
         }
     }
 
 
     public void tryCreateDomain(AnActionEvent e) {
-        MAP.forEach((k, v) -> {
+        STRING_MAP.forEach((k, v) -> {
             VirtualFile virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
             assert virtualFile != null;
             String filePath = virtualFile.getPath() + File.separator + k + File.separator + "package-info.java";
@@ -73,9 +77,10 @@ public final class InvokerService {
         }
     }
 
-
-    private static @NotNull Map<String, String> readmeData() {
-        return Maps.newHashMap();
+    private static @NotNull Map<String, String> readmeData(@NotNull AnActionEvent e) {
+        Map<String, String> data = Maps.newHashMap();
+        data.put("projectName", Objects.isNull(e.getProject()) ? "" : getProjectName(e.getProject().getBasePath()));
+        return data;
     }
 
     private static @NotNull Map<String, String> domainData(VirtualFile virtualFile, String dir) {
@@ -90,4 +95,18 @@ public final class InvokerService {
         return StringUtils.replace(data, "/", ".");
     }
 
+    private static String getProjectName(String path) {
+        String pomPath = path + File.separator + "pom.xml";
+        if (FileUtil.exist(pomPath)) {
+            try (FileInputStream fis = new FileInputStream(pomPath)) {
+                MavenXpp3Reader reader = new MavenXpp3Reader();
+                Model model = reader.read(fis);
+                return model.getName();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+                return "";
+            }
+        }
+        return "";
+    }
 }

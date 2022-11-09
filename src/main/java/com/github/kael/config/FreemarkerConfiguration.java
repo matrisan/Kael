@@ -1,5 +1,6 @@
 package com.github.kael.config;
 
+import com.github.kael.exception.FreeMarkerException;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 
@@ -17,12 +18,11 @@ public class FreemarkerConfiguration extends Configuration {
 
     private static final FreemarkerConfiguration FREEMARKER = new FreemarkerConfiguration("/template");
 
-
     public static Template getClassPathTemplate(String ftl) {
         try {
             return FREEMARKER.getTemplate(ftl, ENCODING);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FreeMarkerException(e);
         }
     }
 
