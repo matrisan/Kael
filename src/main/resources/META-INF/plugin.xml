@@ -13,9 +13,9 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
-    <description>
-        初始化好项目以后,通过右击 Kael 快速生产 DDD 相关的文件夹, application, domain, infrastructure, interfaces
-    </description>
+    <description><![CDATA[
+        This plug-in is dedicated to initializing the project design for domain-driven design. After initializing the project, it quickly produces DDD-related folders, including application, domain, infrastructure, and interfaces, by right-clicking Kael.
+    ]]></description>
 
     <!-- Product and plugin compatibility requirements.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
@@ -27,8 +27,7 @@
         <projectService serviceImplementation="com.github.kael.service.InvokerService"/>
     </extensions>
     <actions>
-        <action id="InvokerAction" class="com.github.kael.action.InvokerAction" text="Kael"
-                icon="/icon/pluginIcon.svg">
+        <action id="InvokerAction" class="com.github.kael.action.InvokerAction" text="Kael">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
     </actions>
