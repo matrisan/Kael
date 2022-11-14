@@ -1,4 +1,4 @@
-package com.github.kael.exception;
+package com.matrixboot.kael.exception;
 
 /**
  * create in 2022/11/9 12:31

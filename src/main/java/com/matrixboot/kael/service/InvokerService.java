@@ -1,7 +1,7 @@
-package com.github.kael.service;
+package com.matrixboot.kael.service;
 
 import cn.hutool.core.io.FileUtil;
-import com.github.kael.config.FreemarkerConfiguration;
+import com.matrixboot.kael.config.FreemarkerConfiguration;
 import com.google.common.collect.Maps;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.github.kael.common.StringCommon.STRING_MAP;
+import static com.matrixboot.kael.common.StringCommon.STRING_MAP;
 
 /**
  * create in 2022/11/8 21:16
@@ -41,12 +41,10 @@ public final class InvokerService {
         this.project = project;
     }
 
-
     public void createFiles(AnActionEvent e) {
         tryCreateReadme(e);
         tryCreateDomain(e);
     }
-
 
     public void tryCreateReadme(AnActionEvent e) {
         String readme = project.getBasePath() + File.separator + "README.adoc";
@@ -54,7 +52,6 @@ public final class InvokerService {
             doWriteFile(readme, "readme.ftl", readmeData(e));
         }
     }
-
 
     public void tryCreateDomain(AnActionEvent e) {
         STRING_MAP.forEach((k, v) -> {
@@ -101,18 +98,15 @@ public final class InvokerService {
 
     private Model model;
 
-
     private String getProjectName(String path) {
         initModel(path);
         return model.getName();
     }
 
-
     private String getVersion(String path) {
         initModel(path);
         return model.getVersion();
     }
-
 
     private void initModel(String path) {
         if (Objects.isNull(model)) {

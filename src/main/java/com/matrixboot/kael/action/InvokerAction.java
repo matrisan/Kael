@@ -1,6 +1,6 @@
-package com.github.kael.action;
+package com.matrixboot.kael.action;
 
-import com.github.kael.service.InvokerService;
+import com.matrixboot.kael.service.InvokerService;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;

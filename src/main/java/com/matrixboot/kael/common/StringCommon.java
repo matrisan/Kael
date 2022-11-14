@@ -1,4 +1,4 @@
-package com.github.kael.common;
+package com.matrixboot.kael.common;
 
 import com.google.common.collect.Maps;
 import lombok.AccessLevel;

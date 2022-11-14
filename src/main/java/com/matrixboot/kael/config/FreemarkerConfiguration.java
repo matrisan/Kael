@@ -1,6 +1,6 @@
-package com.github.kael.config;
+package com.matrixboot.kael.config;
 
-import com.github.kael.exception.FreeMarkerException;
+import com.matrixboot.kael.exception.FreeMarkerException;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 
