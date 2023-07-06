@@ -1,7 +1,6 @@
 package com.matrixboot.kael.service;
 
 import cn.hutool.core.io.FileUtil;
-import com.matrixboot.kael.config.FreemarkerConfiguration;
 import com.google.common.collect.Maps;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -9,7 +8,9 @@ import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.matrixboot.kael.config.FreemarkerConfiguration;
 import freemarker.template.Template;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Model;
@@ -54,24 +55,21 @@ public final class InvokerService {
     }
 
     public void tryCreateDomain(AnActionEvent e) {
-        STRING_MAP.forEach((k, v) -> {
+        STRING_MAP.forEach((path, template) -> {
             VirtualFile virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
             assert virtualFile != null;
-            String filePath = virtualFile.getPath() + File.separator + k + File.separator + "package-info.java";
-            doWriteFile(filePath, v, domainData(e, virtualFile, k));
+            String filePath = virtualFile.getPath() + File.separator + path + File.separator + "package-info.java";
+            doWriteFile(filePath, template, domainData(e, virtualFile, path));
         });
     }
 
+    @SneakyThrows
     private void doWriteFile(String filePath, String templateName, Map<String, String> data) {
-        try {
-            Template template = FreemarkerConfiguration.getClassPathTemplate(templateName);
-            StringWriter stringWriter = new StringWriter();
-            template.process(data, stringWriter);
-            FileUtil.writeString(stringWriter.toString(), new File(filePath), StandardCharsets.UTF_8);
-            LocalFileSystem.getInstance().refreshAndFindFileByPath(filePath);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
+        Template template = FreemarkerConfiguration.getClassPathTemplate(templateName);
+        StringWriter stringWriter = new StringWriter();
+        template.process(data, stringWriter);
+        FileUtil.writeString(stringWriter.toString(), new File(filePath), StandardCharsets.UTF_8);
+        LocalFileSystem.getInstance().refreshAndFindFileByPath(filePath);
     }
 
     private @NotNull Map<String, String> readmeData(@NotNull AnActionEvent e) {
@@ -82,7 +80,7 @@ public final class InvokerService {
         return data;
     }
 
-    private @NotNull Map<String, String> domainData(AnActionEvent e, VirtualFile virtualFile, String dir) {
+    private @NotNull Map<String, String> domainData(@NotNull AnActionEvent e, VirtualFile virtualFile, String dir) {
         Map<String, String> map = Maps.newHashMap();
         String replace = StringUtils.replace(dir, "/", ".");
         map.put("reference", getPackageReference(virtualFile) + "." + replace);
@@ -108,16 +106,19 @@ public final class InvokerService {
         return model.getVersion();
     }
 
+    @SneakyThrows
     private void initModel(String path) {
         if (Objects.isNull(model)) {
-            String pomPath = path + File.separator + "pom.xml";
-            if (FileUtil.exist(pomPath)) {
-                try (FileInputStream fis = new FileInputStream(pomPath)) {
-                    MavenXpp3Reader reader = new MavenXpp3Reader();
-                    model = reader.read(fis);
-                } catch (Exception exception) {
-                    exception.printStackTrace();
-                }
+            extracted(path + File.separator + "pom.xml");
+        }
+    }
+
+    @SneakyThrows
+    private void extracted(String pomPath) {
+        if (FileUtil.exist(pomPath)) {
+            try (FileInputStream fis = new FileInputStream(pomPath)) {
+                MavenXpp3Reader reader = new MavenXpp3Reader();
+                model = reader.read(fis);
             }
         }
     }
