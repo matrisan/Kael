@@ -17,7 +17,7 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class StringCommon {
 
-    private static final Map<String, String> STRING_MAP = Maps.newHashMap();
+    public static final Map<String, String> STRING_MAP = Maps.newHashMap();
 
     private static final String APPLICATION = "application";
 

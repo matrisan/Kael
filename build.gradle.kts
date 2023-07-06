@@ -20,10 +20,10 @@ intellij {
 }
 
 dependencies {
-    implementation("org.apache.maven:maven-model:3.8.6")
-    implementation("cn.hutool:hutool-core:5.8.9")
-    implementation("org.projectlombok:lombok:1.18.24")
-    implementation("org.freemarker:freemarker:2.3.31")
+    implementation("org.apache.maven:maven-model:3.9.3")
+    implementation("cn.hutool:hutool-core:5.8.20")
+    implementation("org.projectlombok:lombok:1.18.28")
+    implementation("org.freemarker:freemarker:2.3.32")
 }
 
 
