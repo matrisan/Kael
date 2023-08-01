@@ -10,15 +10,18 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.matrixboot.kael.config.FreemarkerConfiguration;
 import freemarker.template.Template;
-import lombok.SneakyThrows;
+import freemarker.template.TemplateException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -33,7 +36,7 @@ import static com.matrixboot.kael.common.StringCommon.STRING_MAP;
  * @version 0.0.1
  */
 @Slf4j
-@Service
+@Service(Service.Level.PROJECT)
 public final class InvokerService {
 
     private final Project project;
@@ -63,11 +66,14 @@ public final class InvokerService {
         });
     }
 
-    @SneakyThrows
     private void doWriteFile(String filePath, String templateName, Map<String, String> data) {
         Template template = FreemarkerConfiguration.getClassPathTemplate(templateName);
         StringWriter stringWriter = new StringWriter();
-        template.process(data, stringWriter);
+        try {
+            template.process(data, stringWriter);
+        } catch (TemplateException | IOException e) {
+            throw new RuntimeException(e);
+        }
         FileUtil.writeString(stringWriter.toString(), new File(filePath), StandardCharsets.UTF_8);
         LocalFileSystem.getInstance().refreshAndFindFileByPath(filePath);
     }
@@ -106,19 +112,31 @@ public final class InvokerService {
         return model.getVersion();
     }
 
-    @SneakyThrows
     private void initModel(String path) {
         if (Objects.isNull(model)) {
             extracted(path + File.separator + "pom.xml");
         }
     }
 
-    @SneakyThrows
     private void extracted(String pomPath) {
         if (FileUtil.exist(pomPath)) {
-            try (FileInputStream fis = new FileInputStream(pomPath)) {
-                MavenXpp3Reader reader = new MavenXpp3Reader();
+            FileInputStream fis = null;
+            try {
+                fis = new FileInputStream(pomPath);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }finally {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            MavenXpp3Reader reader = new MavenXpp3Reader();
+            try {
                 model = reader.read(fis);
+            } catch (IOException | XmlPullParserException e) {
+                throw new RuntimeException(e);
             }
         }
     }

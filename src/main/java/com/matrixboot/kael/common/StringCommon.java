@@ -44,6 +44,7 @@ public final class StringCommon {
         STRING_MAP.put(INFRASTRUCTURE + File.separator + "common" + File.separator + "query", "package-infrastructure-common-query.ftl");
         STRING_MAP.put(INFRASTRUCTURE + File.separator + "common" + File.separator + "result", "package-infrastructure-common-result.ftl");
         STRING_MAP.put(INFRASTRUCTURE + File.separator + "common" + File.separator + "event", "package-infrastructure-common-event.ftl");
+        STRING_MAP.put(INFRASTRUCTURE + File.separator + "common" + File.separator + "view", "package-infrastructure-common-view.ftl");
 
         STRING_MAP.put(INFRASTRUCTURE + File.separator + "config", "package-infrastructure-config.ftl");
         STRING_MAP.put(INFRASTRUCTURE + File.separator + "annotation", "package-infrastructure-annotation.ftl");
